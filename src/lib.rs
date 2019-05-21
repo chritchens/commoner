@@ -78,3 +78,24 @@ impl CollectionsInfo {
             .map_err(|e| format!("{}", e))
     }
 }
+
+/// `CDXItem` is a single item returned by a CDX query.
+#[derive(Clone, Default, Hash, Eq, PartialEq, Ord, PartialOrd, Debug, Serialize, Deserialize)]
+pub struct CDXItem {
+    pub urlkey: String,
+    pub timestamp: u64,
+    pub mime: String,
+    pub length: u64,
+    pub status: u64,
+    pub filename: String,
+    pub languages: String,
+    pub charset: String,
+    pub url: String,
+    pub mime_detected: String,
+    pub offset: u64,
+    pub digest: String,
+}
+
+/// `CDXItems` is the collection of items returned by a CDX query.
+#[derive(Default, Eq, PartialEq, Debug, Serialize, Deserialize)]
+pub struct CDXItems(Vec<CDXItem>);
