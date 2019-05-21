@@ -96,6 +96,68 @@ pub struct CDXItem {
     pub digest: String,
 }
 
+impl CDXItem {
+    /// `new` creates a new `CDXItem`.
+    pub fn new() -> CDXItem {
+        CDXItem::default()
+    }
+
+    /// `from_json_string` deserializes a new `CDXItem` from a json string.
+    pub fn from_json_string(s: &str) -> Result<CDXItem> {
+        serde_json::from_str(s)
+            .map_err(|e| format!("{}", e))
+    }
+
+    /// `to_json_string` serializes the `CDXItem` into a json string.
+    pub fn to_json_string(&self) -> Result<String> {
+        serde_json::to_string(self)
+            .map_err(|e| format!("{}", e))
+    }
+
+    /// `from_json_bytes` deserializes a new `CDXItem` from a json bytes.
+    pub fn from_json_bytes(b: &[u8]) -> Result<CDXItem> {
+        serde_json::from_slice(b)
+            .map_err(|e| format!("{}", e))
+    }
+
+    /// `to_json_bytes` serializes the `CDXItem` into a json bytes.
+    pub fn to_json_bytes(&self) -> Result<Vec<u8>> {
+        serde_json::to_vec(self)
+            .map_err(|e| format!("{}", e))
+    }
+}
+
 /// `CDXItems` is the collection of items returned by a CDX query.
 #[derive(Default, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct CDXItems(Vec<CDXItem>);
+
+impl CDXItems {
+    /// `new` creates a new `CDXItems`.
+    pub fn new() -> CDXItems {
+        CDXItems::default()
+    }
+
+    /// `from_json_string` deserializes a new `CDXItems` from a json string.
+    pub fn from_json_string(s: &str) -> Result<CDXItems> {
+        serde_json::from_str(s)
+            .map_err(|e| format!("{}", e))
+    }
+
+    /// `to_json_string` serializes the `CDXItems` into a json string.
+    pub fn to_json_string(&self) -> Result<String> {
+        serde_json::to_string(self)
+            .map_err(|e| format!("{}", e))
+    }
+
+    /// `from_json_bytes` deserializes a new `CDXItems` from a json bytes.
+    pub fn from_json_bytes(b: &[u8]) -> Result<CDXItems> {
+        serde_json::from_slice(b)
+            .map_err(|e| format!("{}", e))
+    }
+
+    /// `to_json_bytes` serializes the `CDXItems` into a json bytes.
+    pub fn to_json_bytes(&self) -> Result<Vec<u8>> {
+        serde_json::to_vec(self)
+            .map_err(|e| format!("{}", e))
+    }
+}
