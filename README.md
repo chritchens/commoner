@@ -1,3 +1,3 @@
 # Commoner
 
-A client for the CommonCrawl Index.
+A Rust [CommonCrawl](https://commoncrawl.org) client.
