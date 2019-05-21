@@ -14,3 +14,9 @@ name = "commoner"
 path = "src/bin/commoner.rs"
 
 [dependencies]
+serde = "~1.0"
+serde_json = "~1.0"
+reqwest = "~0.9"
+trie-rs = "~0.1"
+libflate = "~0.1"
+rust_warc = "~1.0"
