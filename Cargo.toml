@@ -1,0 +1,16 @@
+[package]
+name = "commoner"
+version = "0.1.0"
+authors = ["chritchens <chritchens@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "commoner_lib"
+path = "src/lib.rs"
+
+[[bin]]
+
+name = "commoner"
+path = "src/bin/commoner.rs"
+
+[dependencies]
