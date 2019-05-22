@@ -1,14 +1,15 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
+use reqwest;
 //use reqwest::{self, Method, Url, Client, ClientBuilder, Request, RequestBuilder, StatusCode, header::{self, HeaderMap, HeaderValue}};
 use std::fmt;
 
 pub type Result<T> = std::result::Result<T, String>;
 
-/// `BASE_INDEX_URI` is the base uri for accessing index data.
-pub const BASE_INDEX_URI: &str = "https://index.commoncrawl.org/";
-/// `BASE_WARC_URI` is the base uri for accessing WARC data.
-pub const BASE_WARC_URI: &str = "https://commoncrawl.s3.amazonaws.com/";
+/// `CDX_HOST` is the host for accessing cdx index data.
+pub const CDX_HOST: &str = "index.commoncrawl.org/";
+/// `WARC_HOST` is the host for accessing WARC data.
+pub const WARC_HOST: &str = "commoncrawl.s3.amazonaws.com/";
 
 /// `ToJson` specifies the operations implemented by types that can be serialized into JSON.
 pub trait ToJson<'a>: Serialize + Deserialize<'a> {
@@ -38,6 +39,47 @@ pub trait FromJson<'a>: Serialize + Deserialize<'a> {
         serde_json::from_slice(b)
             .map_err(|e| format!("{}", e))
     }
+}
+
+/// `Url` is the url type used by the library.
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+pub enum HTTPUrl {
+    CDX { path: String },
+    WARC { path: String },
+}
+
+impl HTTPUrl {
+    /// `to_string` returns the `HTTPUrl` string.
+    pub fn to_string(&self) -> String {
+       format!("{}", self)
+    }
+
+    /// `from_string` creates a `HTTPUrl` from a string.
+    pub fn from_string(s: &str) -> Result<HTTPUrl> {
+        let url = reqwest::Url::parse(s)
+            .map_err(|e| format!("{}", e))?;
+
+        match url.host_str() {
+            Some(CDX_HOST) => Ok(HTTPUrl::CDX { path: url.path().into() }),
+            Some(WARC_HOST) => Ok(HTTPUrl::WARC { path: url.path().into() }),
+            _ => Err("invalid domain".into())
+        }
+    }
+}
+
+impl Default for HTTPUrl {
+    fn default() -> HTTPUrl {
+        HTTPUrl::CDX { path: String::new() }
+    }
+}
+
+impl fmt::Display for HTTPUrl {
+   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+       match self {
+           HTTPUrl::CDX { path } => write!(f, "{}{}", CDX_HOST, path),
+           HTTPUrl::WARC { path } => write!(f, "{}{}", WARC_HOST, path),
+       }
+   }
 }
 
 /// `HTTPCharset` is the set of charsets used by `HTTPContentType`.
