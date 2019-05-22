@@ -3,6 +3,36 @@ use serde_json;
 
 pub type Result<T> = std::result::Result<T, String>;
 
+/// `ToJson` specifies the operations implemented by types that can be serialized into JSON.
+pub trait ToJson<'a>: Serialize + Deserialize<'a> {
+    /// `to_json_string` serializes the implementor into a json string.
+    fn to_json_string(&self) -> Result<String> {
+        serde_json::to_string(self)
+            .map_err(|e| format!("{}", e))
+    }
+    
+    /// `to_json_bytes` serializes the implementor into json bytes.
+    fn to_json_bytes(&self) -> Result<Vec<u8>> {
+        serde_json::to_vec(self)
+            .map_err(|e| format!("{}", e))
+    }
+}
+
+/// `FromJson` specifies the operations implemented by types that can be deserialized from JSON.
+pub trait FromJson<'a>: Serialize + Deserialize<'a> {
+    /// `from_json_string` deserializes an instance of the implementor from a json string.
+    fn from_json_string(s: &'a str) -> Result<Self> {
+        serde_json::from_str(s)
+            .map_err(|e| format!("{}", e))
+    }
+
+    /// `from_json_bytes` deserializes an instance of the implementor from json bytes.
+    fn from_json_bytes(b: &'a [u8]) -> Result<Self> {
+        serde_json::from_slice(b)
+            .map_err(|e| format!("{}", e))
+    }
+}
+
 /// `CollectionInfo` is a single collection info in the CommonCrawl
 /// json file at https://index.commoncrawl.org/collinfo.json
 #[derive(Clone, Default, Hash, Eq, PartialEq, Ord, PartialOrd, Debug, Serialize, Deserialize)]
@@ -18,31 +48,11 @@ impl CollectionInfo {
     pub fn new() -> CollectionInfo {
         CollectionInfo::default()
     }
-
-    /// `from_json_string` deserializes a new `CollectionInfo` from a json string.
-    pub fn from_json_string(s: &str) -> Result<CollectionInfo> {
-        serde_json::from_str(s)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `to_json_string` serializes the `CollectionInfo` into a json string.
-    pub fn to_json_string(&self) -> Result<String> {
-        serde_json::to_string(self)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `from_json_bytes` deserializes a new `CollectionInfo` from a json bytes.
-    pub fn from_json_bytes(b: &[u8]) -> Result<CollectionInfo> {
-        serde_json::from_slice(b)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `to_json_bytes` serializes the `CollectionInfo` into a json bytes.
-    pub fn to_json_bytes(&self) -> Result<Vec<u8>> {
-        serde_json::to_vec(self)
-            .map_err(|e| format!("{}", e))
-    }
 }
+
+impl<'a> ToJson<'a> for CollectionInfo {}
+
+impl<'a> FromJson<'a> for CollectionInfo {}
 
 /// `CollectionsInfo` is a collection of `CollectionInfo`s.
 #[derive(Default, Eq, PartialEq, Debug, Serialize, Deserialize)]
@@ -53,31 +63,11 @@ impl CollectionsInfo {
     pub fn new() -> CollectionsInfo {
         CollectionsInfo::default()
     }
-
-    /// `from_json_string` deserializes a new `CollectionsInfo` from a json string.
-    pub fn from_json_string(s: &str) -> Result<CollectionsInfo> {
-        serde_json::from_str(s)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `to_json_string` serializes the `CollectionsInfo` into a json string.
-    pub fn to_json_string(&self) -> Result<String> {
-        serde_json::to_string(self)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `from_json_bytes` deserializes a new `CollectionsInfo` from a json bytes.
-    pub fn from_json_bytes(b: &[u8]) -> Result<CollectionsInfo> {
-        serde_json::from_slice(b)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `to_json_bytes` serializes the `CollectionsInfo` into a json bytes.
-    pub fn to_json_bytes(&self) -> Result<Vec<u8>> {
-        serde_json::to_vec(self)
-            .map_err(|e| format!("{}", e))
-    }
 }
+
+impl<'a> ToJson<'a> for CollectionsInfo {}
+
+impl<'a> FromJson<'a> for CollectionsInfo {}
 
 /// `CDXItem` is a single item returned by a CDX query.
 #[derive(Clone, Default, Hash, Eq, PartialEq, Ord, PartialOrd, Debug, Serialize, Deserialize)]
@@ -101,31 +91,11 @@ impl CDXItem {
     pub fn new() -> CDXItem {
         CDXItem::default()
     }
-
-    /// `from_json_string` deserializes a new `CDXItem` from a json string.
-    pub fn from_json_string(s: &str) -> Result<CDXItem> {
-        serde_json::from_str(s)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `to_json_string` serializes the `CDXItem` into a json string.
-    pub fn to_json_string(&self) -> Result<String> {
-        serde_json::to_string(self)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `from_json_bytes` deserializes a new `CDXItem` from a json bytes.
-    pub fn from_json_bytes(b: &[u8]) -> Result<CDXItem> {
-        serde_json::from_slice(b)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `to_json_bytes` serializes the `CDXItem` into a json bytes.
-    pub fn to_json_bytes(&self) -> Result<Vec<u8>> {
-        serde_json::to_vec(self)
-            .map_err(|e| format!("{}", e))
-    }
 }
+
+impl<'a> ToJson<'a> for CDXItem {}
+
+impl<'a> FromJson<'a> for CDXItem {}
 
 /// `CDXItems` is the collection of items returned by a CDX query.
 #[derive(Default, Eq, PartialEq, Debug, Serialize, Deserialize)]
@@ -136,28 +106,8 @@ impl CDXItems {
     pub fn new() -> CDXItems {
         CDXItems::default()
     }
-
-    /// `from_json_string` deserializes a new `CDXItems` from a json string.
-    pub fn from_json_string(s: &str) -> Result<CDXItems> {
-        serde_json::from_str(s)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `to_json_string` serializes the `CDXItems` into a json string.
-    pub fn to_json_string(&self) -> Result<String> {
-        serde_json::to_string(self)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `from_json_bytes` deserializes a new `CDXItems` from a json bytes.
-    pub fn from_json_bytes(b: &[u8]) -> Result<CDXItems> {
-        serde_json::from_slice(b)
-            .map_err(|e| format!("{}", e))
-    }
-
-    /// `to_json_bytes` serializes the `CDXItems` into a json bytes.
-    pub fn to_json_bytes(&self) -> Result<Vec<u8>> {
-        serde_json::to_vec(self)
-            .map_err(|e| format!("{}", e))
-    }
 }
+
+impl<'a> ToJson<'a> for CDXItems {}
+
+impl<'a> FromJson<'a> for CDXItems {}
