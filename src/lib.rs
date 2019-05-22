@@ -284,6 +284,7 @@ impl CDXQuerier {
         unreachable!()
     }
 
+    /*
     /// `set_show_num_pages` sets if the query should return the number of pages.
     pub fn set_show_num_pages(_toggle: bool) -> Result<CDXQuerier> {
         unreachable!()
@@ -294,6 +295,7 @@ impl CDXQuerier {
     pub fn set_show_paged_index(_toggle: bool) -> Result<CDXQuerier> {
         unreachable!()
     }
+    */
 
     /// `exec` execs the `CDXQuerier`.
     pub fn exec(self) -> Result<CDXItems> {
