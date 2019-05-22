@@ -173,6 +173,22 @@ impl Fetcher {
         Fetcher::default()
     }
 
+    /// `json_fetcher` creates a new json content-type `Fetcher`.
+    pub fn json_fetcher(url: Url) -> Fetcher {
+        Fetcher {
+            url,
+            content_type: ContentType::default(),
+        }
+    }
+
+    /// `text_fetcher` creates a new text content-type `Fetcher`.
+    pub fn text_fetcher(url: Url, charset: Charset) -> Fetcher {
+        Fetcher {
+            url,
+            content_type: ContentType::TEXT { charset },
+        }
+    }
+
     /// `run` runs the `Fetcher`.
     pub fn run(self) -> Result<Vec<u8>> {
         let content_type = HeaderValue::from_str(&self.content_type.to_string())
@@ -223,9 +239,28 @@ impl<'a> FromJson<'a> for CollectionInfo {}
 pub struct CollectionsInfo(Vec<CollectionInfo>);
 
 impl CollectionsInfo {
+    /// `PATH` is the path of the remote `CollectionsInfo`.
+    pub const PATH: &'static str = "collinfo.json";
+
     /// `new` creates a new `CollectionsInfo`.
     pub fn new() -> CollectionsInfo {
         CollectionsInfo::default()
+    }
+
+    /// `url` returns the `CollectionsInfo` url.
+    pub fn url() -> Url {
+        Url::CDX { path: CollectionsInfo::PATH.into() }
+    }
+
+    /// `fetch` fetches `CollectionsInfo` from remote.
+    pub fn fetch() -> Result<CollectionsInfo> {
+        let url = CollectionsInfo::url();
+
+        let fetcher = Fetcher::json_fetcher(url);
+
+        let contents = fetcher.run()?;
+
+        CollectionsInfo::from_json_bytes(&contents)
     }
 }
 
