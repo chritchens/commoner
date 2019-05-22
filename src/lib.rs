@@ -1,7 +1,6 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
-use reqwest;
-//use reqwest::{self, Method, Url, Client, ClientBuilder, Request, RequestBuilder, StatusCode, header::{self, HeaderMap, HeaderValue}};
+use reqwest::{self, Client, StatusCode, header::{ACCEPT, HeaderValue}};
 use std::fmt;
 
 pub type Result<T> = std::result::Result<T, String>;
@@ -161,58 +160,42 @@ impl fmt::Display for ContentType {
    }
 }
 
-/*
 /// `Fetcher` is used to fetch a remote http(s) resource.
+#[derive(Clone, Default, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct Fetcher {
     pub url: Url,
-    pub content_type: String,
+    pub content_type: ContentType,
 }
 
 impl Fetcher {
     /// `new` creates a new `Fetcher`.
     pub fn new() -> Fetcher {
-        Fetcher {
-            url: Url::parse(""),
-            content_type: String::new(),
-        }
-    }
-
-    /// `add_host` adds the `HTTFetcher` request host.
-    pub fn add_host(mut self, host: &str) -> Result<Fetcher> {
-        self.host = host.to_string();
-        Ok(self)
-    }
-
-    /// `add_content_type` adds the `HTTFetcher` request content-type.
-    pub fn add_content_type(mut self, content_type: &str) -> Result<Fetcher> {
-        self.content_type = content_type.to_string();
-        Ok(self)
+        Fetcher::default()
     }
 
     /// `run` runs the `Fetcher`.
     pub fn run(self) -> Result<Vec<u8>> {
-        if self.uri.is_empty() {
-            return Err("missing uri".to_string());
-        }
+        let content_type = HeaderValue::from_str(&self.content_type.to_string())
+            .map_err(|e| format!("{}", e))?;
 
-        let res = Request::new(Method::GET, self.uri.into())
-            .builder()
-            .header(ACCEPT, self.content_type.into())
+        let req_builder = Client::new().get(&self.url.to_string());
+
+        let mut res = req_builder
+            .header(ACCEPT, content_type)
             .send()
             .map_err(|e| format!("{}", e))?;
 
         if res.status() != StatusCode::OK {
-            return Err("status code: {}", resp.status());
+            return Err(format!("status code: {}", res.status()));
         }
 
         let mut contents = Vec::new();
-        res.copy_to(contents)
+        res.copy_to(&mut contents)
             .map_err(|e| format!("{}", e))?;
 
         Ok(contents)
     }
 }
-*/
 
 /// `Fetch` specifies the operations of the types that can be fetched from remote.
 pub trait Fetch<'a>: Deserialize<'a> {
