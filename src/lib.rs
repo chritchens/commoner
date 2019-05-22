@@ -1,8 +1,14 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
-use reqwest::{self, header::{HeaderMap, CONTENT_TYPE}};
+//use reqwest::{self, Method, Url, Client, ClientBuilder, Request, RequestBuilder, StatusCode, header::{self, HeaderMap, HeaderValue}};
+use std::fmt;
 
 pub type Result<T> = std::result::Result<T, String>;
+
+/// `BASE_INDEX_URI` is the base uri for accessing index data.
+pub const BASE_INDEX_URI: &str = "https://index.commoncrawl.org/";
+/// `BASE_WARC_URI` is the base uri for accessing WARC data.
+pub const BASE_WARC_URI: &str = "https://commoncrawl.s3.amazonaws.com/";
 
 /// `ToJson` specifies the operations implemented by types that can be serialized into JSON.
 pub trait ToJson<'a>: Serialize + Deserialize<'a> {
@@ -34,41 +40,137 @@ pub trait FromJson<'a>: Serialize + Deserialize<'a> {
     }
 }
 
+/// `HTTPCharset` is the set of charsets used by `HTTPContentType`.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+pub enum HTTPCharset {
+    UTF8,
+    UTF16,
+}
+
+impl HTTPCharset {
+    /// `to_string` returns the `HTTPCharset` string.
+    pub fn to_string(self) -> String {
+       format!("{}", self)
+    }
+
+    /// `from_string` creates a `HTTPCharset` from a string.
+    pub fn from_string(s: &str) -> Result<HTTPCharset> {
+        match s {
+            "utf-8" => Ok(HTTPCharset::UTF8),
+            "utf-16" => Ok(HTTPCharset::UTF16),
+            _ => Err("invalid charset".into())
+        }
+    }
+}
+
+impl Default for HTTPCharset {
+    fn default() -> HTTPCharset {
+        HTTPCharset::UTF8
+    }
+}
+
+impl fmt::Display for HTTPCharset {
+   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+       match self {
+           HTTPCharset::UTF8 => write!(f, "utf-8"),
+           HTTPCharset::UTF16 => write!(f, "utf-16"),
+       }
+   }
+}
+
+/// `HTTPContentType` is the set of content-types used by `HTTPFetcher`.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+pub enum HTTPContentType {
+    JSON,
+    TEXT { charset: HTTPCharset },
+}
+
+impl HTTPContentType {
+    /// `to_string` returns the `HTTPContentType` string.
+    pub fn to_string(self) -> String {
+       format!("{}", self)
+    }
+
+    /// `from_string` creates a `HTTPContentType` from a string.
+    pub fn from_string(s: &str) -> Result<HTTPContentType> {
+        match s {
+            "application/json" => Ok(HTTPContentType::JSON ),
+            "text/plain; charset=utf-8" => Ok(HTTPContentType::TEXT { charset: HTTPCharset::UTF8 } ),
+            "text/plain; charset=utf-16" => Ok(HTTPContentType::TEXT { charset: HTTPCharset::UTF16 } ),
+            _ => Err("invalid content-type".into())
+        }
+    }
+}
+
+impl Default for HTTPContentType {
+    fn default() -> HTTPContentType {
+        HTTPContentType::TEXT { charset: HTTPCharset::default() }
+    }
+}
+
+impl fmt::Display for HTTPContentType {
+   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+       match self {
+           HTTPContentType::JSON => write!(f, "application/json"),
+           HTTPContentType::TEXT { charset } => {
+               write!(f, "text/plain; charset={}", charset)
+           },
+       }
+   }
+}
+
+/*
 /// `HTTPFetcher` is used to fetch a remote http(s) resource.
-#[derive(Clone, Default, Debug)]
 pub struct HTTPFetcher {
-    pub uri: String,
+    pub url: Url,
     pub content_type: String,
 }
 
 impl HTTPFetcher {
     /// `new` creates a new `HTTPFetcher`.
     pub fn new() -> HTTPFetcher {
-        HTTPFetcher::default()
+        HTTPFetcher {
+            url: Url::parse(""),
+            content_type: String::new(),
+        }
     }
 
-    /// `add_content_type` adds the `HTTFetcher` request uri.
-    pub fn add_uri(mut self, uri: &str) -> HTTPFetcher {
-        self.uri = uri.to_string();
-        self
+    /// `add_host` adds the `HTTFetcher` request host.
+    pub fn add_host(mut self, host: &str) -> Result<HTTPFetcher> {
+        self.host = host.to_string();
+        Ok(self)
     }
 
     /// `add_content_type` adds the `HTTFetcher` request content-type.
-    pub fn add_content_type(mut self, ct: &str) -> HTTPFetcher {
-        self.content_type = ct.to_string();
-        self
-    }
-
-    /// `build_headers` builds the `HTTPFetcher` http(s) request headers.
-    fn build_headers(&self) -> HeaderMap {
-        unreachable!()
+    pub fn add_content_type(mut self, content_type: &str) -> Result<HTTPFetcher> {
+        self.content_type = content_type.to_string();
+        Ok(self)
     }
 
     /// `run` runs the `HTTPFetcher`.
     pub fn run(self) -> Result<Vec<u8>> {
-        unreachable!()
+        if self.uri.is_empty() {
+            return Err("missing uri".to_string());
+        }
+
+        let res = Request::new(Method::GET, self.uri.into())
+            .builder()
+            .header(ACCEPT, self.content_type.into())
+            .send()
+            .map_err(|e| format!("{}", e))?;
+
+        if res.status() != StatusCode::OK {
+            return Err("status code: {}", resp.status());
+        }
+
+        let mut contents = Vec::new();
+        res.copy_to(contents)
+            .map_err(|e| format!("{}", e))?;
+
+        Ok(contents)
     }
 }
+*/
 
 /// `Fetch` specifies the operations of the types that can be fetched from remote.
 pub trait Fetch<'a>: Deserialize<'a> {
