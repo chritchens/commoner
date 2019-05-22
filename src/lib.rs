@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
+use reqwest::{self, header::{HeaderMap, CONTENT_TYPE}};
 
 pub type Result<T> = std::result::Result<T, String>;
 
@@ -30,6 +31,42 @@ pub trait FromJson<'a>: Serialize + Deserialize<'a> {
     fn from_json_bytes(b: &'a [u8]) -> Result<Self> {
         serde_json::from_slice(b)
             .map_err(|e| format!("{}", e))
+    }
+}
+
+/// `HTTPFetcher` is used to fetch a remote http(s) resource.
+#[derive(Clone, Default, Debug)]
+pub struct HTTPFetcher {
+    pub uri: String,
+    pub content_type: String,
+}
+
+impl HTTPFetcher {
+    /// `new` creates a new `HTTPFetcher`.
+    pub fn new() -> HTTPFetcher {
+        HTTPFetcher::default()
+    }
+
+    /// `add_content_type` adds the `HTTFetcher` request uri.
+    pub fn add_uri(mut self, uri: &str) -> HTTPFetcher {
+        self.uri = uri.to_string();
+        self
+    }
+
+    /// `add_content_type` adds the `HTTFetcher` request content-type.
+    pub fn add_content_type(mut self, ct: &str) -> HTTPFetcher {
+        self.content_type = ct.to_string();
+        self
+    }
+
+    /// `build_headers` builds the `HTTPFetcher` http(s) request headers.
+    fn build_headers(&self) -> HeaderMap {
+        unreachable!()
+    }
+
+    /// `run` runs the `HTTPFetcher`.
+    pub fn run(self) -> Result<Vec<u8>> {
+        unreachable!()
     }
 }
 
