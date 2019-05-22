@@ -6,9 +6,9 @@ use std::fmt;
 pub type Result<T> = std::result::Result<T, String>;
 
 /// `CDX_HOST` is the host for accessing cdx index data.
-pub const CDX_HOST: &str = "index.commoncrawl.org/";
+pub const CDX_HOST: &str = "index.commoncrawl.org";
 /// `WARC_HOST` is the host for accessing WARC data.
-pub const WARC_HOST: &str = "commoncrawl.s3.amazonaws.com/";
+pub const WARC_HOST: &str = "commoncrawl.s3.amazonaws.com";
 
 /// `ToJson` specifies the operations implemented by types that can be serialized into JSON.
 pub trait ToJson<'a>: Serialize + Deserialize<'a> {
@@ -75,8 +75,8 @@ impl Default for Url {
 impl fmt::Display for Url {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
        match self {
-           Url::CDX { path } => write!(f, "https://{}{}", CDX_HOST, path),
-           Url::WARC { path } => write!(f, "https://{}{}", WARC_HOST, path),
+           Url::CDX { path } => write!(f, "https://{}/{}", CDX_HOST, path),
+           Url::WARC { path } => write!(f, "https://{}/{}", WARC_HOST, path),
        }
    }
 }
