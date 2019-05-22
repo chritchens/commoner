@@ -43,118 +43,118 @@ pub trait FromJson<'a>: Serialize + Deserialize<'a> {
 
 /// `Url` is the url type used by the library.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub enum HTTPUrl {
+pub enum Url {
     CDX { path: String },
     WARC { path: String },
 }
 
-impl HTTPUrl {
-    /// `to_string` returns the `HTTPUrl` string.
+impl Url {
+    /// `to_string` returns the `Url` string.
     pub fn to_string(&self) -> String {
        format!("{}", self)
     }
 
-    /// `from_string` creates a `HTTPUrl` from a string.
-    pub fn from_string(s: &str) -> Result<HTTPUrl> {
+    /// `from_string` creates a `Url` from a string.
+    pub fn from_string(s: &str) -> Result<Url> {
         let url = reqwest::Url::parse(s)
             .map_err(|e| format!("{}", e))?;
 
         match url.host_str() {
-            Some(CDX_HOST) => Ok(HTTPUrl::CDX { path: url.path().into() }),
-            Some(WARC_HOST) => Ok(HTTPUrl::WARC { path: url.path().into() }),
+            Some(CDX_HOST) => Ok(Url::CDX { path: url.path().into() }),
+            Some(WARC_HOST) => Ok(Url::WARC { path: url.path().into() }),
             _ => Err("invalid domain".into())
         }
     }
 }
 
-impl Default for HTTPUrl {
-    fn default() -> HTTPUrl {
-        HTTPUrl::CDX { path: String::new() }
+impl Default for Url {
+    fn default() -> Url {
+        Url::CDX { path: String::new() }
     }
 }
 
-impl fmt::Display for HTTPUrl {
+impl fmt::Display for Url {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
        match self {
-           HTTPUrl::CDX { path } => write!(f, "{}{}", CDX_HOST, path),
-           HTTPUrl::WARC { path } => write!(f, "{}{}", WARC_HOST, path),
+           Url::CDX { path } => write!(f, "{}{}", CDX_HOST, path),
+           Url::WARC { path } => write!(f, "{}{}", WARC_HOST, path),
        }
    }
 }
 
-/// `HTTPCharset` is the set of charsets used by `HTTPContentType`.
+/// `Charset` is the set of charsets used by `ContentType`.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub enum HTTPCharset {
+pub enum Charset {
     UTF8,
     UTF16,
 }
 
-impl HTTPCharset {
-    /// `to_string` returns the `HTTPCharset` string.
+impl Charset {
+    /// `to_string` returns the `Charset` string.
     pub fn to_string(self) -> String {
        format!("{}", self)
     }
 
-    /// `from_string` creates a `HTTPCharset` from a string.
-    pub fn from_string(s: &str) -> Result<HTTPCharset> {
+    /// `from_string` creates a `Charset` from a string.
+    pub fn from_string(s: &str) -> Result<Charset> {
         match s {
-            "utf-8" => Ok(HTTPCharset::UTF8),
-            "utf-16" => Ok(HTTPCharset::UTF16),
+            "utf-8" => Ok(Charset::UTF8),
+            "utf-16" => Ok(Charset::UTF16),
             _ => Err("invalid charset".into())
         }
     }
 }
 
-impl Default for HTTPCharset {
-    fn default() -> HTTPCharset {
-        HTTPCharset::UTF8
+impl Default for Charset {
+    fn default() -> Charset {
+        Charset::UTF8
     }
 }
 
-impl fmt::Display for HTTPCharset {
+impl fmt::Display for Charset {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
        match self {
-           HTTPCharset::UTF8 => write!(f, "utf-8"),
-           HTTPCharset::UTF16 => write!(f, "utf-16"),
+           Charset::UTF8 => write!(f, "utf-8"),
+           Charset::UTF16 => write!(f, "utf-16"),
        }
    }
 }
 
-/// `HTTPContentType` is the set of content-types used by `HTTPFetcher`.
+/// `ContentType` is the set of content-types used by `Fetcher`.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
-pub enum HTTPContentType {
+pub enum ContentType {
     JSON,
-    TEXT { charset: HTTPCharset },
+    TEXT { charset: Charset },
 }
 
-impl HTTPContentType {
-    /// `to_string` returns the `HTTPContentType` string.
+impl ContentType {
+    /// `to_string` returns the `ContentType` string.
     pub fn to_string(self) -> String {
        format!("{}", self)
     }
 
-    /// `from_string` creates a `HTTPContentType` from a string.
-    pub fn from_string(s: &str) -> Result<HTTPContentType> {
+    /// `from_string` creates a `ContentType` from a string.
+    pub fn from_string(s: &str) -> Result<ContentType> {
         match s {
-            "application/json" => Ok(HTTPContentType::JSON ),
-            "text/plain; charset=utf-8" => Ok(HTTPContentType::TEXT { charset: HTTPCharset::UTF8 } ),
-            "text/plain; charset=utf-16" => Ok(HTTPContentType::TEXT { charset: HTTPCharset::UTF16 } ),
+            "application/json" => Ok(ContentType::JSON ),
+            "text/plain; charset=utf-8" => Ok(ContentType::TEXT { charset: Charset::UTF8 } ),
+            "text/plain; charset=utf-16" => Ok(ContentType::TEXT { charset: Charset::UTF16 } ),
             _ => Err("invalid content-type".into())
         }
     }
 }
 
-impl Default for HTTPContentType {
-    fn default() -> HTTPContentType {
-        HTTPContentType::TEXT { charset: HTTPCharset::default() }
+impl Default for ContentType {
+    fn default() -> ContentType {
+        ContentType::TEXT { charset: Charset::default() }
     }
 }
 
-impl fmt::Display for HTTPContentType {
+impl fmt::Display for ContentType {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
        match self {
-           HTTPContentType::JSON => write!(f, "application/json"),
-           HTTPContentType::TEXT { charset } => {
+           ContentType::JSON => write!(f, "application/json"),
+           ContentType::TEXT { charset } => {
                write!(f, "text/plain; charset={}", charset)
            },
        }
@@ -162,34 +162,34 @@ impl fmt::Display for HTTPContentType {
 }
 
 /*
-/// `HTTPFetcher` is used to fetch a remote http(s) resource.
-pub struct HTTPFetcher {
+/// `Fetcher` is used to fetch a remote http(s) resource.
+pub struct Fetcher {
     pub url: Url,
     pub content_type: String,
 }
 
-impl HTTPFetcher {
-    /// `new` creates a new `HTTPFetcher`.
-    pub fn new() -> HTTPFetcher {
-        HTTPFetcher {
+impl Fetcher {
+    /// `new` creates a new `Fetcher`.
+    pub fn new() -> Fetcher {
+        Fetcher {
             url: Url::parse(""),
             content_type: String::new(),
         }
     }
 
     /// `add_host` adds the `HTTFetcher` request host.
-    pub fn add_host(mut self, host: &str) -> Result<HTTPFetcher> {
+    pub fn add_host(mut self, host: &str) -> Result<Fetcher> {
         self.host = host.to_string();
         Ok(self)
     }
 
     /// `add_content_type` adds the `HTTFetcher` request content-type.
-    pub fn add_content_type(mut self, content_type: &str) -> Result<HTTPFetcher> {
+    pub fn add_content_type(mut self, content_type: &str) -> Result<Fetcher> {
         self.content_type = content_type.to_string();
         Ok(self)
     }
 
-    /// `run` runs the `HTTPFetcher`.
+    /// `run` runs the `Fetcher`.
     pub fn run(self) -> Result<Vec<u8>> {
         if self.uri.is_empty() {
             return Err("missing uri".to_string());
