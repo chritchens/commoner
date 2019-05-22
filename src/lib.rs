@@ -305,6 +305,25 @@ impl CDXItems {
     pub fn new() -> CDXItems {
         CDXItems::default()
     }
+
+    /// `fetch` fetches `CDXItems` from remote.
+    pub fn fetch(path: &str) -> Result<CDXItems> {
+        let path = if path.chars().nth(0) == Some('/') {
+            let mut p = String::from(path);
+            p.remove(0);
+            p
+        } else {
+            String::from(path)
+        };
+
+        let url = Url::WARC { path };
+
+        let fetcher = Fetcher::json_fetcher(url);
+
+        let contents = fetcher.run()?;
+
+        CDXItems::from_json_bytes(&contents)
+    }
 }
 
 impl<'a> ToJson<'a> for CDXItems {}
