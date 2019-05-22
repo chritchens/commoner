@@ -33,6 +33,20 @@ pub trait FromJson<'a>: Serialize + Deserialize<'a> {
     }
 }
 
+/// `Fetch` specifies the operations of the types that can be fetched from remote.
+pub trait Fetch<'a>: Serialize + Deserialize<'a> {
+    /// `DEFAULT_LOCATION` is the default location of the resource to fetch.
+    const DEFAULT_LOCATION: &'a str;
+
+    /// `fetch_from_location` creates an instance of the implementor from a given remote location.
+    fn fetch_from_location(l: &str) -> Result<Self>;
+
+    /// `fetch` creates an instance of the implementor from the default remote location.
+    fn fetch() -> Result<Self> {
+        Self::fetch_from_location(Self::DEFAULT_LOCATION)
+    }
+}
+
 /// `CollectionInfo` is a single collection info in the CommonCrawl
 /// json file at https://index.commoncrawl.org/collinfo.json
 #[derive(Clone, Default, Hash, Eq, PartialEq, Ord, PartialOrd, Debug, Serialize, Deserialize)]
