@@ -76,8 +76,8 @@ impl Default for Url {
 impl fmt::Display for Url {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
        match self {
-           Url::CDX { path } => write!(f, "{}{}", CDX_HOST, path),
-           Url::WARC { path } => write!(f, "{}{}", WARC_HOST, path),
+           Url::CDX { path } => write!(f, "https://{}{}", CDX_HOST, path),
+           Url::WARC { path } => write!(f, "https://{}{}", WARC_HOST, path),
        }
    }
 }
