@@ -34,7 +34,7 @@ pub trait FromJson<'a>: Serialize + Deserialize<'a> {
 }
 
 /// `Fetch` specifies the operations of the types that can be fetched from remote.
-pub trait Fetch<'a>: Serialize + Deserialize<'a> {
+pub trait Fetch<'a>: Deserialize<'a> {
     /// `DEFAULT_LOCATION` is the default location of the resource to fetch.
     const DEFAULT_LOCATION: &'a str;
 
@@ -44,6 +44,22 @@ pub trait Fetch<'a>: Serialize + Deserialize<'a> {
     /// `fetch` creates an instance of the implementor from the default remote location.
     fn fetch() -> Result<Self> {
         Self::fetch_from_location(Self::DEFAULT_LOCATION)
+    }
+}
+
+/// `FetchJson` specifies the operations of the types that can be fetched as json from remote.
+pub trait FetchJson<'a>: FromJson<'a> {
+    /// `DEFAULT_LOCATION` is the default location of the resource to fetch.
+    const DEFAULT_LOCATION: &'a str;
+
+    /// `fetch_json_from_location` creates an instance of the implementor from a given remote location.
+    /// The resource is expected to be in Json format.
+    fn fetch_json_from_location(l: &str) -> Result<Self>;
+
+    /// `fetch_json` creates an instance of the implementor from the default remote location.
+    /// The resource is expected to be in Json format.
+    fn fetch_json() -> Result<Self> {
+        Self::fetch_json_from_location(Self::DEFAULT_LOCATION)
     }
 }
 
