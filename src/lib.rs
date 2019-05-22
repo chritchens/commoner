@@ -146,7 +146,7 @@ impl ContentType {
 
 impl Default for ContentType {
     fn default() -> ContentType {
-        ContentType::TEXT { charset: Charset::default() }
+        ContentType::JSON
     }
 }
 
