@@ -189,8 +189,8 @@ impl Fetcher {
         }
     }
 
-    /// `run` runs the `Fetcher`.
-    pub fn run(self) -> Result<Vec<u8>> {
+    /// `exec` execs the `Fetcher`.
+    pub fn exec(self) -> Result<Vec<u8>> {
         let content_type = HeaderValue::from_str(&self.content_type.to_string())
             .map_err(|e| format!("{}", e))?;
 
@@ -210,6 +210,94 @@ impl Fetcher {
             .map_err(|e| format!("{}", e))?;
 
         Ok(contents)
+    }
+}
+
+/// `CDXQuerier` is used to query the CommonCrawl Index CDX API.
+#[derive(Clone, Default, Hash, Eq, PartialEq, Ord, PartialOrd, Debug)]
+pub struct CDXQuerier {
+    pub path: String,
+    pub from: u64,
+    pub to: u64,
+    pub limit: u64,
+    pub sort: i64,
+    pub filter: String,
+    pub field: Option<String>,
+    pub page: u64,
+    pub page_size: u64,
+    pub show_num_pages: bool,
+    pub show_paged_index: bool,
+}
+
+impl CDXQuerier {
+    /// `new` creates a new CDXQuerier.
+    pub fn new() -> CDXQuerier {
+        CDXQuerier::default()
+    }
+
+    /// `set_path` sets the path of the collection index.
+    pub fn set_path(_path: &str) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_from` sets the from timestamp in the date/time range of the query.
+    /// The value has to have less than 14 digits and will be padded to the
+    /// lower bound.
+    pub fn set_from(_from: u64) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_to` sets the to timestamp in the date/time range of the query.
+    /// The value has to have less than 14 digits and will be padded to the
+    /// upper bound.
+    pub fn set_to(_to: u64) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_limit` sets the limit to the number of returned items from the query.
+    pub fn set_limit(_limit: u64) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_sort` sets the sorting method in the query.
+    pub fn set_sort(_sort: i64) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_filter` sets the filtering method in the query.
+    pub fn set_filter(_filter: &str) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_field` sets the field to be returned if only one is required.
+    pub fn set_field(_field: &str) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_page` sets the page to be returned by the query.
+    pub fn set_page(_page: u64) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_page_size` sets the maximum size per page.
+    pub fn set_page_size(_page_size: u64) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_show_num_pages` sets if the query should return the number of pages.
+    pub fn set_show_num_pages(_toggle: bool) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `set_show_paged_index` sets if the query should return the
+    /// secondary index data instead of the CDX data.
+    pub fn set_show_paged_index(_toggle: bool) -> Result<CDXQuerier> {
+        unreachable!()
+    }
+
+    /// `exec` execs the `CDXQuerier`.
+    pub fn exec(self) -> Result<CDXItems> {
+        unreachable!()
     }
 }
 
@@ -258,7 +346,7 @@ impl CollectionsInfo {
 
         let fetcher = Fetcher::json_fetcher(url);
 
-        let contents = fetcher.run()?;
+        let contents = fetcher.exec()?;
 
         CollectionsInfo::from_json_bytes(&contents)
     }
@@ -320,7 +408,7 @@ impl CDXItems {
 
         let fetcher = Fetcher::json_fetcher(url);
 
-        let contents = fetcher.run()?;
+        let contents = fetcher.exec()?;
 
         CDXItems::from_json_bytes(&contents)
     }
